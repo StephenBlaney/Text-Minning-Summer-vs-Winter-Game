@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="7.6.001">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="6.0.002" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="false" class="select_by_weights" compatibility="7.6.001" expanded="true" height="103" name="Select by Weights (2)" width="90" x="447" y="544">
+        <parameter key="weight_relation" value="greater equals"/>
+        <parameter key="weight" value="0.4"/>
+        <parameter key="k" value="10"/>
+        <parameter key="p" value="0.5"/>
+        <parameter key="deselect_unknown" value="true"/>
+        <parameter key="use_absolute_weights" value="true"/>
+      </operator>
+      <operator activated="true" class="text:process_document_from_file" compatibility="7.5.000" expanded="true" height="82" name="Process Documents from Files (2)" width="90" x="45" y="34">
+        <list key="text_directories">
+          <parameter key="WinterGames" value="C:\Users\Stephen\Documents\Semester 7\textAnalystics(2018)\Assignment\WinterGames"/>
+          <parameter key="SummerGames" value="C:\Users\Stephen\Documents\Semester 7\textAnalystics(2018)\Assignment\SummerGames"/>
+          <parameter key="HorrorReviews" value="C:\Users\Stephen\Documents\Semester 7\textAnalystics(2018)\Assignment\HorrorReviews"/>
+        </list>
+        <parameter key="file_pattern" value="*"/>
+        <parameter key="extract_text_only" value="true"/>
+        <parameter key="use_file_extension_as_type" value="true"/>
+        <parameter key="content_type" value="txt"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <parameter key="create_word_vector" value="true"/>
+        <parameter key="vector_creation" value="Term Occurrences"/>
+        <parameter key="add_meta_information" value="true"/>
+        <parameter key="keep_text" value="false"/>
+        <parameter key="prune_method" value="absolute"/>
+        <parameter key="prune_below_percent" value="3.0"/>
+        <parameter key="prune_above_percent" value="30.0"/>
+        <parameter key="prune_below_absolute" value="3"/>
+        <parameter key="prune_above_absolute" value="19"/>
+        <parameter key="prune_below_rank" value="0.05"/>
+        <parameter key="prune_above_rank" value="0.95"/>
+        <parameter key="datamanagement" value="double_sparse_array"/>
+        <parameter key="data_management" value="auto"/>
+        <process expanded="true">
+          <operator activated="true" class="text:tokenize" compatibility="7.5.000" expanded="true" height="68" name="Tokenize (2)" width="90" x="45" y="34">
+            <parameter key="mode" value="non letters"/>
+            <parameter key="characters" value=".:"/>
+            <parameter key="language" value="English"/>
+            <parameter key="max_token_length" value="3"/>
+          </operator>
+          <operator activated="false" class="text:generate_n_grams_characters" compatibility="7.5.000" expanded="true" height="68" name="Generate n-Grams (Characters)" width="90" x="45" y="238">
+            <parameter key="length" value="3"/>
+            <parameter key="keep_terms" value="false"/>
+          </operator>
+          <operator activated="true" class="text:transform_cases" compatibility="7.5.000" expanded="true" height="68" name="Transform Cases" width="90" x="179" y="34">
+            <parameter key="transform_to" value="lower case"/>
+          </operator>
+          <operator activated="false" class="text:generate_n_grams_terms" compatibility="7.5.000" expanded="true" height="68" name="Generate n-Grams (2)" width="90" x="45" y="340">
+            <parameter key="max_length" value="2"/>
+          </operator>
+          <operator activated="true" class="text:filter_stopwords_english" compatibility="7.5.000" expanded="true" height="68" name="Filter Stopwords (2)" width="90" x="313" y="34"/>
+          <operator activated="true" class="text:filter_stopwords_dictionary" compatibility="7.5.000" expanded="true" height="82" name="Filter Stopwords (3)" width="90" x="447" y="34">
+            <parameter key="file" value="C:\Users\Stephen\Documents\Semester 7\textAnalystics(2018)\Assignment\StopWords\stopwords.txt"/>
+            <parameter key="case_sensitive" value="false"/>
+            <parameter key="encoding" value="SYSTEM"/>
+          </operator>
+          <operator activated="true" class="text:filter_by_length" compatibility="7.5.000" expanded="true" height="68" name="Filter Tokens (3)" width="90" x="112" y="136">
+            <parameter key="min_chars" value="2"/>
+            <parameter key="max_chars" value="25"/>
+          </operator>
+          <operator activated="false" class="text:filter_tokens_by_pos" compatibility="7.5.000" expanded="true" height="68" name="Filter Tokens (by POS Tags)" width="90" x="179" y="238">
+            <parameter key="language" value="English"/>
+            <parameter key="expression" value="N.*| V.*"/>
+            <parameter key="invert_filter" value="false"/>
+          </operator>
+          <operator activated="true" class="text:stem_dictionary" compatibility="7.5.000" expanded="true" height="82" name="Stem (2)" width="90" x="246" y="136">
+            <parameter key="file" value="C:\Users\Stephen\Documents\Semester 7\textAnalystics(2018)\Assignment\synonyms\synonyms.txt"/>
+          </operator>
+          <operator activated="false" class="text:stem_porter" compatibility="7.5.000" expanded="true" height="68" name="Stem (Porter)" width="90" x="179" y="340"/>
+          <operator activated="true" class="text:stem_lovins" compatibility="7.5.000" expanded="true" height="68" name="Stem (Lovins)" width="90" x="380" y="136"/>
+          <connect from_port="document" to_op="Tokenize (2)" to_port="document"/>
+          <connect from_op="Tokenize (2)" from_port="document" to_op="Transform Cases" to_port="document"/>
+          <connect from_op="Transform Cases" from_port="document" to_op="Filter Stopwords (2)" to_port="document"/>
+          <connect from_op="Filter Stopwords (2)" from_port="document" to_op="Filter Stopwords (3)" to_port="document"/>
+          <connect from_op="Filter Stopwords (3)" from_port="document" to_op="Filter Tokens (3)" to_port="document"/>
+          <connect from_op="Filter Tokens (3)" from_port="document" to_op="Stem (2)" to_port="document"/>
+          <connect from_op="Stem (2)" from_port="document" to_op="Stem (Lovins)" to_port="document"/>
+          <connect from_op="Stem (Lovins)" from_port="document" to_port="document 1"/>
+          <portSpacing port="source_document" spacing="0"/>
+          <portSpacing port="sink_document 1" spacing="0"/>
+          <portSpacing port="sink_document 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="7.6.001" expanded="true" height="124" name="Multiply" width="90" x="45" y="238"/>
+      <operator activated="true" class="weight_by_information_gain" compatibility="7.6.001" expanded="true" height="82" name="Weight by Information Gain" width="90" x="179" y="340">
+        <parameter key="normalize_weights" value="true"/>
+        <parameter key="sort_weights" value="true"/>
+        <parameter key="sort_direction" value="ascending"/>
+      </operator>
+      <operator activated="true" class="optimize_parameters_grid" compatibility="6.0.003" expanded="true" height="124" name="Optimize Parameters - Naive Bayes (2)" width="90" x="447" y="340">
+        <list key="parameters">
+          <parameter key="Select by Weights.weight" value="[0;1;10;linear]"/>
+        </list>
+        <parameter key="error_handling" value="fail on error"/>
+        <process expanded="true">
+          <operator activated="false" class="select_by_weights" compatibility="7.6.001" expanded="true" height="103" name="Select by Weights - Naive Bayes (2)" width="90" x="45" y="340">
+            <parameter key="weight_relation" value="greater equals"/>
+            <parameter key="weight" value="1.0"/>
+            <parameter key="k" value="10"/>
+            <parameter key="p" value="0.5"/>
+            <parameter key="deselect_unknown" value="true"/>
+            <parameter key="use_absolute_weights" value="true"/>
+          </operator>
+          <operator activated="true" class="select_by_weights" compatibility="7.6.001" expanded="true" height="103" name="Select by Weights" width="90" x="112" y="34">
+            <parameter key="weight_relation" value="greater equals"/>
+            <parameter key="weight" value="1.0"/>
+            <parameter key="k" value="10"/>
+            <parameter key="p" value="0.5"/>
+            <parameter key="deselect_unknown" value="true"/>
+            <parameter key="use_absolute_weights" value="true"/>
+          </operator>
+          <operator activated="true" class="store" compatibility="7.6.001" expanded="true" height="68" name="Store (3)" width="90" x="179" y="238">
+            <parameter key="repository_entry" value="//TextMinning/TextMinningProject/WeightsUsingInformationGain"/>
+          </operator>
+          <operator activated="true" class="concurrency:cross_validation" compatibility="7.6.001" expanded="true" height="145" name="Cross Validation (3)" width="90" x="313" y="34">
+            <parameter key="split_on_batch_attribute" value="false"/>
+            <parameter key="leave_one_out" value="false"/>
+            <parameter key="number_of_folds" value="10"/>
+            <parameter key="sampling_type" value="automatic"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <parameter key="enable_parallel_execution" value="true"/>
+            <process expanded="true">
+              <operator activated="false" class="naive_bayes" compatibility="7.6.001" expanded="true" height="82" name="Naive Bayes (2)" width="90" x="45" y="187">
+                <parameter key="laplace_correction" value="true"/>
+              </operator>
+              <operator activated="true" class="concurrency:parallel_decision_tree" compatibility="7.6.001" expanded="true" height="82" name="Decision Tree" width="90" x="112" y="34">
+                <parameter key="criterion" value="gain_ratio"/>
+                <parameter key="maximal_depth" value="20"/>
+                <parameter key="apply_pruning" value="true"/>
+                <parameter key="confidence" value="0.25"/>
+                <parameter key="apply_prepruning" value="true"/>
+                <parameter key="minimal_gain" value="0.1"/>
+                <parameter key="minimal_leaf_size" value="2"/>
+                <parameter key="minimal_size_for_split" value="4"/>
+                <parameter key="number_of_prepruning_alternatives" value="3"/>
+              </operator>
+              <connect from_port="training set" to_op="Decision Tree" to_port="training set"/>
+              <connect from_op="Decision Tree" from_port="model" to_port="model"/>
+              <connect from_op="Decision Tree" from_port="exampleSet" to_port="through 1"/>
+              <portSpacing port="source_training set" spacing="0"/>
+              <portSpacing port="sink_model" spacing="0"/>
+              <portSpacing port="sink_through 1" spacing="0"/>
+              <portSpacing port="sink_through 2" spacing="0"/>
+            </process>
+            <process expanded="true">
+              <operator activated="true" class="apply_model" compatibility="7.1.001" expanded="true" height="82" name="Apply Model (3)" width="90" x="45" y="30">
+                <list key="application_parameters"/>
+                <parameter key="create_view" value="false"/>
+              </operator>
+              <operator activated="true" class="performance" compatibility="7.6.001" expanded="true" height="82" name="Performance - Naive Bayes (2)" width="90" x="194" y="30">
+                <parameter key="use_example_weights" value="false"/>
+              </operator>
+              <connect from_port="model" to_op="Apply Model (3)" to_port="model"/>
+              <connect from_port="test set" to_op="Apply Model (3)" to_port="unlabelled data"/>
+              <connect from_op="Apply Model (3)" from_port="labelled data" to_op="Performance - Naive Bayes (2)" to_port="labelled data"/>
+              <connect from_op="Performance - Naive Bayes (2)" from_port="performance" to_port="performance 1"/>
+              <portSpacing port="source_model" spacing="0"/>
+              <portSpacing port="source_test set" spacing="0"/>
+              <portSpacing port="source_through 1" spacing="0"/>
+              <portSpacing port="source_through 2" spacing="0"/>
+              <portSpacing port="sink_test set results" spacing="0"/>
+              <portSpacing port="sink_performance 1" spacing="0"/>
+              <portSpacing port="sink_performance 2" spacing="0"/>
+            </process>
+          </operator>
+          <connect from_port="input 1" to_op="Select by Weights" to_port="example set input"/>
+          <connect from_port="input 2" to_op="Select by Weights" to_port="weights"/>
+          <connect from_op="Select by Weights" from_port="example set output" to_op="Cross Validation (3)" to_port="example set"/>
+          <connect from_op="Select by Weights" from_port="weights" to_op="Store (3)" to_port="input"/>
+          <connect from_op="Cross Validation (3)" from_port="performance 1" to_port="performance"/>
+          <portSpacing port="source_input 1" spacing="0"/>
+          <portSpacing port="source_input 2" spacing="0"/>
+          <portSpacing port="source_input 3" spacing="0"/>
+          <portSpacing port="sink_performance" spacing="0"/>
+          <portSpacing port="sink_result 1" spacing="0"/>
+          <portSpacing port="sink_result 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="weight_by_uncertainty" compatibility="7.6.001" expanded="true" height="82" name="Weight by Uncertainty" width="90" x="179" y="238">
+        <parameter key="normalize_weights" value="true"/>
+        <parameter key="sort_weights" value="true"/>
+        <parameter key="sort_direction" value="ascending"/>
+        <parameter key="number_of_bins" value="10"/>
+      </operator>
+      <operator activated="true" class="weight_by_relief" compatibility="7.6.001" expanded="true" height="82" name="Weight by Relief" width="90" x="179" y="136">
+        <parameter key="normalize_weights" value="true"/>
+        <parameter key="sort_weights" value="true"/>
+        <parameter key="sort_direction" value="ascending"/>
+        <parameter key="number_of_neighbors" value="3"/>
+        <parameter key="sample_ratio" value="0.5"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+      </operator>
+      <operator activated="true" class="optimize_parameters_grid" compatibility="6.0.003" expanded="true" height="124" name="Optimize Parameters - Naive Bayes" width="90" x="447" y="187">
+        <list key="parameters">
+          <parameter key="Select by Weights - Naive Bayes.weight" value="[0;1;10;linear]"/>
+        </list>
+        <parameter key="error_handling" value="fail on error"/>
+        <process expanded="true">
+          <operator activated="true" class="select_by_weights" compatibility="7.6.001" expanded="true" height="103" name="Select by Weights - Naive Bayes" width="90" x="112" y="85">
+            <parameter key="weight_relation" value="greater equals"/>
+            <parameter key="weight" value="1.0"/>
+            <parameter key="k" value="10"/>
+            <parameter key="p" value="0.5"/>
+            <parameter key="deselect_unknown" value="true"/>
+            <parameter key="use_absolute_weights" value="true"/>
+          </operator>
+          <operator activated="true" class="store" compatibility="7.6.001" expanded="true" height="68" name="Store (2)" width="90" x="246" y="340">
+            <parameter key="repository_entry" value="//TextMinning/TextMinningProject/WeightsUsingRelief2"/>
+          </operator>
+          <operator activated="true" class="concurrency:cross_validation" compatibility="7.6.001" expanded="true" height="145" name="Cross Validation (2)" width="90" x="313" y="85">
+            <parameter key="split_on_batch_attribute" value="false"/>
+            <parameter key="leave_one_out" value="false"/>
+            <parameter key="number_of_folds" value="10"/>
+            <parameter key="sampling_type" value="automatic"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <parameter key="enable_parallel_execution" value="true"/>
+            <process expanded="true">
+              <operator activated="true" class="naive_bayes" compatibility="7.6.001" expanded="true" height="82" name="Naive Bayes" width="90" x="45" y="75">
+                <parameter key="laplace_correction" value="true"/>
+              </operator>
+              <connect from_port="training set" to_op="Naive Bayes" to_port="training set"/>
+              <connect from_op="Naive Bayes" from_port="model" to_port="model"/>
+              <portSpacing port="source_training set" spacing="0"/>
+              <portSpacing port="sink_model" spacing="0"/>
+              <portSpacing port="sink_through 1" spacing="0"/>
+            </process>
+            <process expanded="true">
+              <operator activated="true" class="apply_model" compatibility="7.1.001" expanded="true" height="82" name="Apply Model (2)" width="90" x="45" y="30">
+                <list key="application_parameters"/>
+                <parameter key="create_view" value="false"/>
+              </operator>
+              <operator activated="true" class="performance" compatibility="7.6.001" expanded="true" height="82" name="Performance - Naive Bayes" width="90" x="194" y="30">
+                <parameter key="use_example_weights" value="false"/>
+              </operator>
+              <connect from_port="model" to_op="Apply Model (2)" to_port="model"/>
+              <connect from_port="test set" to_op="Apply Model (2)" to_port="unlabelled data"/>
+              <connect from_op="Apply Model (2)" from_port="labelled data" to_op="Performance - Naive Bayes" to_port="labelled data"/>
+              <connect from_op="Performance - Naive Bayes" from_port="performance" to_port="performance 1"/>
+              <portSpacing port="source_model" spacing="0"/>
+              <portSpacing port="source_test set" spacing="0"/>
+              <portSpacing port="source_through 1" spacing="0"/>
+              <portSpacing port="sink_test set results" spacing="0"/>
+              <portSpacing port="sink_performance 1" spacing="0"/>
+              <portSpacing port="sink_performance 2" spacing="0"/>
+            </process>
+          </operator>
+          <connect from_port="input 1" to_op="Select by Weights - Naive Bayes" to_port="example set input"/>
+          <connect from_port="input 2" to_op="Select by Weights - Naive Bayes" to_port="weights"/>
+          <connect from_op="Select by Weights - Naive Bayes" from_port="example set output" to_op="Cross Validation (2)" to_port="example set"/>
+          <connect from_op="Select by Weights - Naive Bayes" from_port="weights" to_op="Store (2)" to_port="input"/>
+          <connect from_op="Cross Validation (2)" from_port="performance 1" to_port="performance"/>
+          <portSpacing port="source_input 1" spacing="0"/>
+          <portSpacing port="source_input 2" spacing="0"/>
+          <portSpacing port="source_input 3" spacing="0"/>
+          <portSpacing port="sink_performance" spacing="0"/>
+          <portSpacing port="sink_result 1" spacing="0"/>
+          <portSpacing port="sink_result 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="optimize_parameters_grid" compatibility="6.0.003" expanded="true" height="124" name="Optimize Parameters - kNN" width="90" x="447" y="34">
+        <list key="parameters">
+          <parameter key="Select by Weights - kNN.weight" value="[0;50.0;10;linear]"/>
+        </list>
+        <parameter key="error_handling" value="fail on error"/>
+        <process expanded="true">
+          <operator activated="true" class="select_by_weights" compatibility="7.6.001" expanded="true" height="103" name="Select by Weights - kNN" width="90" x="112" y="85">
+            <parameter key="weight_relation" value="greater equals"/>
+            <parameter key="weight" value="50.0"/>
+            <parameter key="k" value="10"/>
+            <parameter key="p" value="0.5"/>
+            <parameter key="deselect_unknown" value="true"/>
+            <parameter key="use_absolute_weights" value="true"/>
+          </operator>
+          <operator activated="true" class="store" compatibility="7.6.001" expanded="true" height="68" name="Store" width="90" x="246" y="289">
+            <parameter key="repository_entry" value="//TextMinning/TextMinningProject/WeightsUsingRelief1"/>
+          </operator>
+          <operator activated="true" class="concurrency:cross_validation" compatibility="7.6.001" expanded="true" height="145" name="Cross Validation" width="90" x="313" y="85">
+            <parameter key="split_on_batch_attribute" value="false"/>
+            <parameter key="leave_one_out" value="false"/>
+            <parameter key="number_of_folds" value="10"/>
+            <parameter key="sampling_type" value="automatic"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <parameter key="enable_parallel_execution" value="true"/>
+            <process expanded="true">
+              <operator activated="true" class="k_nn" compatibility="7.6.001" expanded="true" height="82" name="k-NN" width="90" x="107" y="30">
+                <parameter key="k" value="3"/>
+                <parameter key="weighted_vote" value="false"/>
+                <parameter key="measure_types" value="MixedMeasures"/>
+                <parameter key="mixed_measure" value="MixedEuclideanDistance"/>
+                <parameter key="nominal_measure" value="NominalDistance"/>
+                <parameter key="numerical_measure" value="EuclideanDistance"/>
+                <parameter key="divergence" value="GeneralizedIDivergence"/>
+                <parameter key="kernel_type" value="radial"/>
+                <parameter key="kernel_gamma" value="1.0"/>
+                <parameter key="kernel_sigma1" value="1.0"/>
+                <parameter key="kernel_sigma2" value="0.0"/>
+                <parameter key="kernel_sigma3" value="2.0"/>
+                <parameter key="kernel_degree" value="3.0"/>
+                <parameter key="kernel_shift" value="1.0"/>
+                <parameter key="kernel_a" value="1.0"/>
+                <parameter key="kernel_b" value="0.0"/>
+              </operator>
+              <connect from_port="training set" to_op="k-NN" to_port="training set"/>
+              <connect from_op="k-NN" from_port="model" to_port="model"/>
+              <portSpacing port="source_training set" spacing="0"/>
+              <portSpacing port="sink_model" spacing="0"/>
+              <portSpacing port="sink_through 1" spacing="0"/>
+            </process>
+            <process expanded="true">
+              <operator activated="true" class="apply_model" compatibility="7.1.001" expanded="true" height="82" name="Apply Model" width="90" x="45" y="30">
+                <list key="application_parameters"/>
+                <parameter key="create_view" value="false"/>
+              </operator>
+              <operator activated="true" class="performance" compatibility="7.6.001" expanded="true" height="82" name="Performance - kNN" width="90" x="112" y="165">
+                <parameter key="use_example_weights" value="false"/>
+              </operator>
+              <connect from_port="model" to_op="Apply Model" to_port="model"/>
+              <connect from_port="test set" to_op="Apply Model" to_port="unlabelled data"/>
+              <connect from_op="Apply Model" from_port="labelled data" to_op="Performance - kNN" to_port="labelled data"/>
+              <connect from_op="Performance - kNN" from_port="performance" to_port="performance 1"/>
+              <portSpacing port="source_model" spacing="0"/>
+              <portSpacing port="source_test set" spacing="0"/>
+              <portSpacing port="source_through 1" spacing="0"/>
+              <portSpacing port="sink_test set results" spacing="0"/>
+              <portSpacing port="sink_performance 1" spacing="0"/>
+              <portSpacing port="sink_performance 2" spacing="0"/>
+            </process>
+          </operator>
+          <connect from_port="input 1" to_op="Select by Weights - kNN" to_port="example set input"/>
+          <connect from_port="input 2" to_op="Select by Weights - kNN" to_port="weights"/>
+          <connect from_op="Select by Weights - kNN" from_port="example set output" to_op="Cross Validation" to_port="example set"/>
+          <connect from_op="Select by Weights - kNN" from_port="weights" to_op="Store" to_port="input"/>
+          <connect from_op="Cross Validation" from_port="performance 1" to_port="performance"/>
+          <portSpacing port="source_input 1" spacing="0"/>
+          <portSpacing port="source_input 2" spacing="0"/>
+          <portSpacing port="source_input 3" spacing="0"/>
+          <portSpacing port="sink_performance" spacing="0"/>
+          <portSpacing port="sink_result 1" spacing="0"/>
+          <portSpacing port="sink_result 2" spacing="0"/>
+          <description align="center" color="yellow" colored="false" height="105" resized="false" width="180" x="500" y="72">Type your comment</description>
+        </process>
+      </operator>
+      <connect from_port="input 1" to_op="Process Documents from Files (2)" to_port="word list"/>
+      <connect from_op="Process Documents from Files (2)" from_port="example set" to_op="Multiply" to_port="input"/>
+      <connect from_op="Multiply" from_port="output 1" to_op="Weight by Relief" to_port="example set"/>
+      <connect from_op="Multiply" from_port="output 2" to_op="Weight by Uncertainty" to_port="example set"/>
+      <connect from_op="Multiply" from_port="output 3" to_op="Weight by Information Gain" to_port="example set"/>
+      <connect from_op="Weight by Information Gain" from_port="weights" to_op="Optimize Parameters - Naive Bayes (2)" to_port="input 2"/>
+      <connect from_op="Weight by Information Gain" from_port="example set" to_op="Optimize Parameters - Naive Bayes (2)" to_port="input 1"/>
+      <connect from_op="Optimize Parameters - Naive Bayes (2)" from_port="performance" to_port="result 7"/>
+      <connect from_op="Optimize Parameters - Naive Bayes (2)" from_port="parameter" to_port="result 8"/>
+      <connect from_op="Optimize Parameters - Naive Bayes (2)" from_port="result 1" to_port="result 9"/>
+      <connect from_op="Weight by Uncertainty" from_port="weights" to_op="Optimize Parameters - Naive Bayes" to_port="input 2"/>
+      <connect from_op="Weight by Uncertainty" from_port="example set" to_op="Optimize Parameters - Naive Bayes" to_port="input 1"/>
+      <connect from_op="Weight by Relief" from_port="weights" to_op="Optimize Parameters - kNN" to_port="input 2"/>
+      <connect from_op="Weight by Relief" from_port="example set" to_op="Optimize Parameters - kNN" to_port="input 1"/>
+      <connect from_op="Optimize Parameters - Naive Bayes" from_port="performance" to_port="result 3"/>
+      <connect from_op="Optimize Parameters - Naive Bayes" from_port="parameter" to_port="result 4"/>
+      <connect from_op="Optimize Parameters - Naive Bayes" from_port="result 1" to_port="result 5"/>
+      <connect from_op="Optimize Parameters - kNN" from_port="performance" to_port="result 1"/>
+      <connect from_op="Optimize Parameters - kNN" from_port="parameter" to_port="result 2"/>
+      <connect from_op="Optimize Parameters - kNN" from_port="result 1" to_port="result 6"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="source_input 2" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+      <portSpacing port="sink_result 4" spacing="0"/>
+      <portSpacing port="sink_result 5" spacing="0"/>
+      <portSpacing port="sink_result 6" spacing="0"/>
+      <portSpacing port="sink_result 7" spacing="0"/>
+      <portSpacing port="sink_result 8" spacing="0"/>
+      <portSpacing port="sink_result 9" spacing="0"/>
+      <portSpacing port="sink_result 10" spacing="0"/>
+      <description align="left" color="yellow" colored="false" height="356" resized="false" width="400" x="10" y="572">&lt;p&gt;This process: &lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+Uses process documents from data to read n the 15 documents on Crime, Healthcare and Kenya, producings a dataset of 201 attributes
+&lt;/li&gt;
+&lt;li&gt;
+Creates two copies of this dataset using Multiply
+&lt;/li&gt;&lt;li&gt;Attributes in the first copy are weighted using Weight by relief. Optimse parameters trys different threshold for what weight an attributes needs to have before it is included in the dataset. Various thresholds are tested using kNN.
+&lt;/li&gt;&lt;li&gt; Attributes in the 2nd copy are weighted using Weight by Uncertainty. Again, optimise parameters determines the best threshold for deciding what attributes to include if modellings using Naive Bayes.
+&lt;/li&gt;
+&lt;ol&gt;
+Note: k-NN uses 93 of the attributes; Naive Bayes only uses 26 attributes.</description>
+    </process>
+  </operator>
+</process>
